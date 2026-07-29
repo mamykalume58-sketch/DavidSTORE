@@ -1,18 +1,8 @@
+git add lib/screens/onboarding_screen.dart
+git commit -m "Ajout navigation onboarding (suivant/passer/commencer)"
+git push
 import 'package:flutter/material.dart';
 import '../theme/app_theme.dart';
-import 'welcome_screen.dart';
-
-class _OnboardingSlide {
-  final IconData icon;
-  final String title;
-  final String body;
-
-  const _OnboardingSlide({
-    required this.icon,
-    required this.title,
-    required this.body,
-  });
-}
 
 class OnboardingScreen extends StatefulWidget {
   const OnboardingScreen({super.key});
@@ -23,58 +13,32 @@ class OnboardingScreen extends StatefulWidget {
 
 class _OnboardingScreenState extends State<OnboardingScreen> {
   final PageController _controller = PageController();
+
   int _currentPage = 0;
 
-  final List<_OnboardingSlide> _slides = const [
-    _OnboardingSlide(
-      icon: Icons.workspace_premium_outlined,
-      title: 'Qualité Premium',
-      body: 'Découvrez des produits soigneusement sélectionnés pour vous '
-          'garantir l\'excellence au quotidien.',
-    ),
-    _OnboardingSlide(
-      icon: Icons.local_shipping_outlined,
-      title: 'Livraison Rapide',
-      body: 'Recevez vos articles directement chez vous ou au bureau dans '
-          'les plus brefs délais.',
-    ),
-    _OnboardingSlide(
-      icon: Icons.local_shipping_outlined,
-      title: 'Livraison Rapide',
-      body: 'Recevez vos articles directement chez vous ou au bureau dans '
-          'les plus brefs délais.',
-    ),
-    _OnboardingSlide(
-      icon: Icons.lock_outline,
-      title: 'Paiement Sécurisé',
-      body: 'Payez en toute confiance via nos options mobiles sécurisées '
-          '(M-Pesa, Airtel Money, Orange Money).',
-    ),
+  final List<Map<String, String>> _slides = [
+    {
+      "title": "Bienvenue sur DavidSTORE",
+      "description":
+          "Votre boutique digitale moderne pour acheter facilement vos produits préférés.",
+      "image": "assets/images/onboarding1.png",
+    },
+    {
+      "title": "Découvrez nos produits",
+      "description":
+          "Explorez un catalogue riche avec une expérience rapide et élégante.",
+      "image": "assets/images/onboarding2.png",
+    },
+    {
+      "title": "Commandez facilement",
+      "description":
+          "Payez simplement et suivez vos commandes en toute sécurité.",
+      "image": "assets/images/onboarding3.png",
+    },
   ];
-
-  void _goNext() {
-    if (_currentPage < _slides.length - 1) {
-      _controller.nextPage(
-        duration: const Duration(milliseconds: 300),
-        curve: Curves.easeInOut,
-      );
-    } else {
-      Navigator.of(context).pushReplacement(
-        MaterialPageRoute(builder: (_) => const WelcomeScreen()),
-      );
-    }
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
-    final bool isLast = _currentPage == _slides.length - 1;
-
     return Scaffold(
       backgroundColor: AppColors.navyDark,
       body: SafeArea(
@@ -84,71 +48,71 @@ class _OnboardingScreenState extends State<OnboardingScreen> {
               child: PageView.builder(
                 controller: _controller,
                 itemCount: _slides.length,
-                onPageChanged: (index) => setState(() => _currentPage = index),
+                onPageChanged: (index) {
+                  setState(() {
+                    _currentPage = index;
+                  });
+                },
                 itemBuilder: (context, index) {
-                  final slide = _slides[index];
-                  return Padding(
-                    padding: const EdgeInsets.symmetric(horizontal: 32),
-                    child: Column(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Icon(slide.icon, size: 90, color: AppColors.gold),
-                        const SizedBox(height: 28),
-                        Text(
-                          slide.title,
-                          style: AppTextStyles.onboardingTitle,
-                          textAlign: TextAlign.center,
+                  return Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Image.asset(
+                        _slides[index]["image"]!,
+                        height: 280,
+                      ),
+
+                      const SizedBox(height: 40),
+
+                      Text(
+                        _slides[index]["title"]!,
+                        textAlign: TextAlign.center,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
                         ),
-                        const SizedBox(height: 10),
-                        Text(
-                          slide.body,
-                          style: AppTextStyles.onboardingBody,
+                      ),
+
+                      const SizedBox(height: 20),
+
+                      Padding(
+                        padding: const EdgeInsets.symmetric(horizontal: 30),
+                        child: Text(
+                          _slides[index]["description"]!,
                           textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Colors.white.withOpacity(0.7),
+                            fontSize: 16,
+                          ),
                         ),
-                      ],
-                    ),
+                      ),
+                    ],
                   );
                 },
               ),
             ),
+
+            // Indicateurs
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
-              children: List.generate(_slides.length, (index) {
-                final bool active = index == _currentPage;
-                return AnimatedContainer(
-                  duration: const Duration(milliseconds: 250),
-                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                  width: active ? 20 : 8,
+              children: List.generate(
+                _slides.length,
+                (index) => Container(
+                  margin: const EdgeInsets.all(5),
+                  width: _currentPage == index ? 28 : 8,
                   height: 8,
                   decoration: BoxDecoration(
-                    color: active ? AppColors.gold : AppColors.whiteMuted,
-                    borderRadius: BorderRadius.circular(4),
-                  ),
-                );
-              }),
-            ),
-            const SizedBox(height: 24),
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 24),
-              child: SizedBox(
-                width: double.infinity,
-                child: OutlinedButton(
-                  onPressed: _goNext,
-                  style: OutlinedButton.styleFrom(
-                    side: const BorderSide(color: AppColors.white),
-                    padding: const EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                  ),
-                  child: Text(
-                    isLast ? 'Commencer' : 'Suivant',
-                    style: AppTextStyles.buttonText,
+                    color: _currentPage == index
+                        ? Colors.blueAccent
+                        : Colors.white30,
+                    borderRadius: BorderRadius.circular(10),
                   ),
                 ),
               ),
             ),
-            const SizedBox(height: 32),
+
+            const SizedBox(height: 30),
           ],
         ),
       ),
